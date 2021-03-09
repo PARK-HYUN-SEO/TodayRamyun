@@ -12,5 +12,5 @@
 ### 리스트 화면
 ![20210309_161632](https://user-images.githubusercontent.com/80211869/110432902-1f91f700-80f3-11eb-8c14-c5c1ce3e42eb.png)
 
-### 
+### 모달 화면
 ![20210309_161657](https://user-images.githubusercontent.com/80211869/110432975-36d0e480-80f3-11eb-8814-eef400c55429.png)
