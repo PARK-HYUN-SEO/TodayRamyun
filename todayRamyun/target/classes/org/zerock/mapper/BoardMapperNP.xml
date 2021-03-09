@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.mapper.BoardMapper">
+
+	<select id="getListNP" resultType="org.zerock.domain.BoardVO">
+	<![CDATA[
+	select * from tbl_board_np where bnonp > 0
+	]]>
+	</select>
+	
+	<select id="getListFR" resultType="org.zerock.domain.BoardVO">
+	<![CDATA[
+	select * from tbl_board_fr where bnofr > 0
+	]]>
+	</select>	
+	
+	<insert id="insertNP">
+		
+		<selectKey keyProperty="bno" order="BEFORE"
+			resultType="long">
+			select seq_board_np.nextval from dual
+		</selectKey>
+		
+		insert all
+			into tbl_board_np (bnonp,title,content,writer) values (#{bnonp}, #{title}, #{content}, #{writer})
+			into div_board (boardid, boardnm) values ('1', '신상')
+	</insert>
+	
+	<insert id="insertFR">
+		
+		<selectKey keyProperty="bno" order="BEFORE"
+			resultType="long">
+			select seq_board_fr.nextval from dual
+		</selectKey>
+		
+		insert all
+			into tbl_board_fr (bnofr,title,content,writer) values (#{bnofr}, #{title}, #{content}, #{writer})
+			into div_board (boardid, boardnm) values ('2', '해외')
+	</insert>
+	
+	<select id="readNP" resultType="org.zerock.domain.BoardVO">
+		select * from tbl_board_np where bnonp = #{bnonp} 
+	</select>
+	
+	<select id="readFR" resultType="org.zerock.domain.BoardVO">
+		select * from tbl_board_fr where bnofr = #{bnofr} 
+	</select>
+	
+	<delete id="deleteNP">
+		delete from tbl_board_np where bnonp = #{bnonp}
+	</delete>
+	
+	<delete id="deleteFR">
+		delete from tbl_board_fr where bnofr = #{bnofr}
+	</delete>
+	
+	<update id="updateNP">
+		update tbl_board_np
+		set title= #{title},
+		content = #{content},
+		writer = #{writer},
+		updateDate = sysdate
+		where bnonp = #{bnonp}
+	</update>
+	
+	<update id="updateFR">
+		update tbl_board_fr
+		set title= #{title},
+		content = #{content},
+		writer = #{writer},
+		updateDate = sysdate
+		where bnofr = #{bnofr}
+	</update>
+	
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item='type' collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'C'.toString()">
+							content like '%'||#{keyword}||'%'
+						</when>
+						<when test="type == 'W'.toString()">
+							writer like '%'||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>	
+	</sql>
+	
+	<select id="getListWithPagingNP" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+		select
+			bnonp, title, content, writer, regdate, updatedate
+		from
+			(
+			select /*+INDEX_DESC(tbl_board_np pk_board_np) */
+				rownum rn, bnonp, title, content, writer, regdate, updatedate
+			from
+				tbl_board_np
+			where
+		]]>
+		
+		<include refid="criteria"></include>	
+			
+		<![CDATA[
+			rownum <= #{pageNum} * #{amount}
+			)
+		where rn > (#{pageNum} -1) * #{amount}
+		]]>
+	</select>
+	
+	<select id="getListWithPagingFR" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+		select
+			bnofr, title, content, writer, regdate, updatedate
+		from
+			(
+			select /*+INDEX_DESC(tbl_board_fr pk_board_fr) */
+				rownum rn, bnofr, title, content, writer, regdate, updatedate
+			from
+				tbl_board_fr
+			where
+		]]>
+		
+		<include refid="criteria"></include>	
+			
+		<![CDATA[
+			rownum <= #{pageNum} * #{amount}
+			)
+		where rn > (#{pageNum} -1) * #{amount}
+		]]>
+	</select>
+	
+	<select id="getTotalCountNP" resultType="int">
+		select count(*) from tbl_board_np 
+		where
+		
+		<include refid="criteria"></include>
+		
+		bnonp > 0
+	</select>
+	
+	<select id="getTotalCountFR" resultType="int">
+		select count(*) from tbl_board_fr 
+		where
+		
+		<include refid="criteria"></include>
+		
+		bnofr > 0
+	</select>
+
+</mapper>
